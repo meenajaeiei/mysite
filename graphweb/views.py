@@ -1,8 +1,20 @@
-import inspect,io 
+from django.utils import timezone
+import pytz
+import inspect,io,os
 import csv
 import pyrebase
-import pygal
+import pandas
+
 from django.shortcuts import render
+from django.http import JsonResponse
+from django.core.files.storage import FileSystemStorage
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+timezone.activate(pytz.timezone("Asia/Bangkok"))
+TIME = timezone.get_current_timezone().normalize(timezone.now())
+
 
 def contact_upload(request):
     config = {
@@ -21,7 +33,6 @@ def contact_upload(request):
     user = auth.sign_in_with_email_and_password("meecomeback@gmail.com", "123456789")
 
     db = firebase.database()
-
     template = "contact_upload.html"
     
     prompt = {
@@ -30,33 +41,27 @@ def contact_upload(request):
 
     if request.method == "GET":
         return render(request,template,prompt)
-    csv_file = request.FILES['file']
-    
-    data_set = csv_file.read().decode('UTF-8')
-    io_string = io.StringIO(data_set)
-    count = 0
-    COLUMN = []
-    for col in csv.reader(io_string, delimiter = ',' , quotechar = "|"):
-        if count == 90:
-            break
+    myfile = request.FILES['file']
+    fs = FileSystemStorage()
+    global TIME
 
-        if count == 0:
-            for zz in range(11):
-                try:
-                    COLUMN.append(col[zz])
-                except:
-                    print("EXECPT", col[zz])
-                    pass
-            count = count + 1
-            continue
-        print(col)
-
-
-        for kk in range(len(COLUMN)):
-            db.child("users_test_django").child(str(count)).child(str(COLUMN[kk])).set(col[kk])
-        
-        count = count + 1
+    strTIME = str(TIME.date())+'-'+str(TIME.time()).replace(':' , '-').replace('.', '-')+'.csv'
+    filename = fs.save(strTIME, myfile)
+    uploaded_file_url = fs.url(filename)
+    df = pandas.read_csv(os.path.join("C:/Users/mhee/mysite/media_root", strTIME))
+    # for col in df.columns:
+    #     print(col)
+    print(df)
     context = {}
-    print("the count is" , count)
-    print("the LEN COLUMN is" , len(COLUMN))
     return render(request , template , context)
+
+def get_data(request , *args,  **kwargs):
+
+    data = {
+        "sale":100,
+        "cus":99,
+    }
+    return JsonResponse(data)
+
+def analysis(request):
+    
