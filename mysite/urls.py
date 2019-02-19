@@ -25,7 +25,7 @@ urlpatterns = [
     path('viewgraph/' , viewgraph , name = 'viewgraph'),
     path('setgraph/' , setgraph , name = 'setgraph'),
 
-    path('api/chart/data/' , ChartData.as_view()),
+    path('api/chart/data/' , ChartData.as_view() ,  name = 'chast'),
     
 ]
 

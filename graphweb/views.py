@@ -6,6 +6,7 @@ import pyrebase
 import pandas
 import json
 
+from django import forms
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.core.files.storage import FileSystemStorage
@@ -68,21 +69,35 @@ def viewgraph(request):
     return render(request , "viewgraph.html")
 
 def setgraph(request):
+    try:
+        request.session['startdate'] = request.GET['startdate']
+        request.session['enddate'] = request.GET['enddate']
+        pass
+    except:
+        return render(request , "setgraph.html")
+        pass
     return render(request , "setgraph.html")
 
 class ChartData(APIView):
-    def get(self , request , format=None):
-        labels = ["zxczxc"]
-        default_items = []
-        print(os.listdir(os.path.join(BASE_DIR, 'media_root')))
-        dfy = pandas.read_csv(os.path.join(os.path.join(BASE_DIR, 'media_root'), "2019-02-18.csv"))
+    jsonfield = forms.CharField(max_length=1024)
 
-        for row in dfy.itertuples(index=True, name='Pandas'):
-            tmp_dict = dict()
-            tmp_dict['x'] = getattr(row, "AGE") 
-            tmp_dict['y'] = getattr(row, "HEIGHT")
-            default_items.append(tmp_dict)
-    
+    def get(self , request , format=None):
+        print(request.session['startdate'])
+        
+        default_items = []
+        filelist = os.listdir(os.path.join(BASE_DIR, 'media_root'))
+
+        for fil in filelist:
+            if( request.session['startdate'] <= fil[:10] and request.session['enddate'] >= fil[:10]):
+
+                dfy = pandas.read_csv(os.path.join(os.path.join(BASE_DIR, 'media_root'), fil))
+
+                for row in dfy.itertuples(index=True, name='Pandas'):
+                    tmp_dict = dict()
+                    tmp_dict['x'] = getattr(row, "AGE") 
+                    tmp_dict['y'] = getattr(row, "HEIGHT")
+                    default_items.append(tmp_dict)
+        labels = [str(len(default_items)) +" subjects from "+ request.session['startdate']+" to "+request.session['enddate'] ]
         data = {
             "labels": labels,
             "default": default_items,
