@@ -22,7 +22,11 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('contact_upload/' , contact_upload , name = 'contact_upload'),
-    path('api/data/' , get_data , name = 'api-data'),
+    path('viewgraph/' , viewgraph , name = 'viewgraph'),
+    path('setgraph/' , setgraph , name = 'setgraph'),
+
+    path('api/chart/data/' , ChartData.as_view()),
+    
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

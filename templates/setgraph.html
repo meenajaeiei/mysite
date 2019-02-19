@@ -1,0 +1,16 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>Title of the document</title>
+</head>
+
+<body>
+    เลือกวันเวลาข้อมูลมาวิเคราะห์
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+    ด/ว/ป ตั้งแต่  <input type="date" name="startdate"> ถึง ด/ว/ป <input type="date" name="enddate">
+    <input type="submit" value="Submit">
+</body>
+
+</html>
