@@ -1,15 +1,110 @@
-<!DOCTYPE HTML>
-<html>
+{% load static %}
 
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Title of the document</title>
+	<title>Overview</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<!-- css bootstrap -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.0/css/bootstrap.min.css">
+	<!-- custom css -->
+	<link rel="stylesheet"  href="{% static "admin/css/style.css" %}">
+	
+
+	<!-- awesome font-->
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css">
+
+	<!--ajax -->  
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+	<!-- popper script -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
+
+	<!--bootstrap javascript-->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+
 </head>
 
 <body>
-    เลือกวันเวลาข้อมูลมาวิเคราะห์
-    <form method="GET" enctype="multipart/form-data">
-    ด/ว/ป ตั้งแต่  <input type="date" name="startdate"> ถึง ด/ว/ป <input type="date" name="enddate">
-    <input type="submit" value="Submit">
-</body>
+	<div class="container-fluid">
+		<div class="row content">
+			<div class="col-md-2 sidenav" id="main_nav" >
+				<div style="position: relative;">
+					<h4>SETTING</h4><hr>
+					<h5>CUSTOMIZE<br>YOUR CHART</h5>
+					<br>
+					<div class="custom-plot">
+						<!-- graph type  -->
 
+						<form id="graph-type" method="GET" enctype="multipart/form-data">
+							<label style="float: left;">Start</label><br>
+							<input class="form-control" type="date" name="startdate" >
+							<label style="float: left;">To</label><br>
+							<input class="form-control" type="date" name="enddate" ><br>
+							<input class="btn btn-primary" type="submit" value="submit">
+							<a href="{% url "contact_upload" %}"><p style="padding-top: 3%"><i>Upload ?</i></p></a>
+						</form><br>
+
+
+					</div>
+				</div>
+			</div>
+
+			<!--end nav side -->
+			<br><br>
+			<div class="col-md contentside">
+
+				<a href="#main_nav"><h3 id="menuclick" class="fas fa-bars" style="position: absolute;"></h3></a>
+				 <h4 class="text-center"><span class="fas fa-columns"></span> <a href="{% url "setgraph" %}">KMITL Research</a></h4><hr>
+
+				<!-- overview section -->
+				<div id="overview">
+					<h4 style="display:inline-block">Overview</h4>
+
+					<!-- Tab panes -->
+					<div class="tab-content graph-canvas" style="margin-top: 0">
+
+							{% include "viewgraph.html" %}
+				
+					</div>
+
+				</div>
+				<!-- end overview section -->
+
+
+			</div>
+
+
+		</div>
+		<!-- end contentside -->
+
+	</div>
+</div>
+
+<script type="text/javascript">
+	// show/hide menutab
+	var nav = document.getElementById('menuclick');
+	var menuStatus = true;
+	nav.onclick = showCustomizeTab;
+	function showCustomizeTab() {
+		if(menuStatus)
+		{
+			document.getElementById("main_nav").style.display = "block";
+			document.getElementsByClassName("contentside")[0].className = "col-md-10 contentside";
+			menuStatus = false;
+		} else 
+		{
+			document.getElementById("main_nav").style.display = "none";
+			document.getElementsByClassName("contentside")[0].className = "col-md contentside";
+			menuStatus = true;
+		}
+			
+	}
+	
+</script>
+
+
+</body>
 </html>

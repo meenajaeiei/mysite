@@ -1,19 +1,252 @@
-<!DOCTYPE HTML>
-<html>
+{% load cus_tags %}
+{% load static %}
 
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    
+  <title>Dashboard</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- css bootstrap -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.0/css/bootstrap.min.css">
+  <!-- custom css -->
+  <link rel="stylesheet"  href="{% static "admin/css/style.css" %}">
+
+  <!-- awesome font-->
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css">
+  
+  <!--ajax -->  
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+  <!-- popper script -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
+
+  <!--bootstrap javascript-->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+
+
 </head>
 
-<body>
+<body onload="loadedFunction()">
 
-    <form method="POST" enctype="multipart/form-data">
+  <div class="container-fluid">
+    <div class="row content">
+      <div class="col-md-2 sidenav">
+          <h4>MENU</h4><hr>
+          <img class=" pic-profile rounded-circle" src="{% static "admin/img/kmitl_logo.png" %}" width="100px" height="100px">
+          
+          <!-- navside -->
+          <ul class="nav flex-column ">
+            <li class="nav-item">
+              <a class="nav-link custom-nav active " href="{% url "setgraph" %}">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link custom-nav" href="{% url "contact_upload" %}">Upload</a>
+            </li>
+          </ul>
+          
+        </div>
+     
+      <!--end nav side -->
+<br><br>
+      <div class="col-md-10 contentside">  
+
+        <h4 class="text-center"><span class="fas fa-columns"></span> <a href="{% url "setgraph" %}">KMITL Research</a></h4><hr>
+
+ <!-- overview section -->
+ <div id="overview">
+  <h4 style="display:inline-block">Overview</h4>
+
+
+  <!-- Tab panes -->
+  <div class="tab-content graph-canvas">
+    {% include "viewgraph.html" %}
+  
+
+ </div>
+
+</div>
+<!-- end overview section -->
+
+<br>
+<!-- subplot section -->
+<div id="subplot" class="row content">
+  <!-- upload card -->
+  <div class="col-md-6">
+    <h4>Upload</h4>
+    <div id="upload-card" class="card">
+     <div class="card-body">
+
+      <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        <input type="file" name="file">
-       ด/ว/ป ของข้อมูล <input type="date" name="date">
-        <input type="submit" value="Submit">
-    </form>
+        <div class="form-group">
+          <label for="usr">Author :</label>
+          <input type="text" class="form-control" id="author" required>
+        </div>
+        <!-- browse file -->
+        <div class="custom-file">
+          <input type="file" class="custom-file-input" id="customFile" name="file" required>
+          <label class="custom-file-label" for="customFile">Choose File</label>
+        </div>
+        <br><br>
+        <!-- date upload -->
+        <input class="form-control" type="date" name="date" required><br>
 
+        <!-- Button trigger modal -->
+        <button type="button" id="publishBtn" class="btn btn-success" data-toggle="modal" data-target="#publishConfirm">
+          Publish
+        </button>
+
+        <!-- confirm Modal -->
+        <div class="modal fade" id="publishConfirm" tabindex="-1" role="dialog" aria-labelledby="publishConfirmTitle" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Comfirm</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+              </div>
+
+
+
+
+              <div class="modal-body text-center">
+
+                <div id="loadingGif" style="display: none;" >
+                  <img src="https://loading.io/spinners/rolling/lg.curve-bars-loading-indicator.gif" align="center"> <br>
+                  We are processing your submission. Please wait...
+                  <br><br>
+                </div>
+
+                <div id="confirmBox" style="display: block;">
+                  Are you sure to publish this file?<br>
+                  <small>-- make sure you're not blank any input --</small>
+                  <br><br>
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                  <input type="submit" id="ConfirmBtn" class="btn btn-success" value="Publish">
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- published card -->
+<div class="col-md-6">
+  <h4 style="display: inline-block;">published</h4>
+
+
+
+  <!-- Button trigger modal -->
+  <a href="" data-toggle="modal" data-target="#publishedList" style="float: right; padding-right: 1em">
+    see all
+  </a>
+
+  <!-- Modal -->
+  <div class="modal fade" id="publishedList" tabindex="-1" role="dialog" aria-labelledby="publishedListTitle" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="publishedListTitle">Published List</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+         <table class="table text-center">
+          <thead>
+            <tr>
+              <th>File Name</th>
+              <th>Author</th>
+              <th>Date of transaction</th>
+              <th>Date of data</th>
+
+            </tr>
+          </thead>
+          <tbody>
+          {% show_history %}
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<div id="publised-card" class="card">
+ <div class="card-body">
+  <table class="table text-center">
+    <thead>
+      <tr>
+              <th>File Name</th>
+              <th>Author</th>
+              <th>Date</th>
+              <th>Publish</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% show_head_history 3%}
+    </tbody>
+  </table>
+
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
+
+<!-- end subplot section -->
+
+
+
+</div>
+<!-- end contentside -->
+
+</div>
+</div>
+
+<script type="text/javascript">
+  // show file name
+  $('.custom-file input').change(function (e) {
+    var files = [];
+    for (var i = 0; i < $(this)[0].files.length; i++) {
+      files.push($(this)[0].files[i].name);
+    }
+    $(this).next('.custom-file-label').html(files.join(', '));
+  });
+
+  //loading
+  document.getElementById("ConfirmBtn").onclick = loadingFunction;
+  
+  function loadingFunction()
+  {
+    document.getElementById("confirmBox").style.display = "none";
+    document.getElementById("loadingGif").style.display = "block";
+    
+  }
+
+    //loaded
+    function loadedFunction() {
+      document.getElementById("loadingGif").style.display = "none";
+      document.getElementById("confirmBox").style.display = "block";
+    }
+
+
+
+</script>
 </body>
-
 </html>

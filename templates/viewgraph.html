@@ -9,56 +9,172 @@
 </title>
 
 <body>
-    <div class="container">
-    <canvas id="myChart" height="100"></canvas>
-    </div>
-    <div class = "kuy">
-            <button type="button" onclick=test()> xxxxxx</button>
-    </div>
+
+
+
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs nav-justified" role="tablist" style="width: 100% cursor:pointer;">
+        <li class="nav-item custom-card">
+            <a class="nav-link active" data-toggle="tab" id="fat">Fat/Muscle Mass Ratio</a>
+        </li>
+        <li class="nav-item custom-card">
+            <a class="nav-link" data-toggle="tab" id="bmi">BMI</a>
+        </li>
+        <li class="nav-item custom-card">
+            <a class="nav-link" data-toggle="tab" id="muscle">Muscle Mass Index</a>
+        </li>
+        <li class="nav-item custom-card">
+            <a class="nav-link" data-toggle="tab" id="energy">Energy</a>
+        </li>
+    </ul>
+
+    <br>
+<div style="padding: 0.5em">
+    <canvas id="graphId" height="200" ></canvas>
+</div><!-- 
+    <button id="fat">Fat Data</button> 
+    <button id="randomizeData">Randomize Data</button>   -->  
+
     <script>
-        
-        var endpoint = '/api/chart/data'
-        var defaultData = []
+        var endpoint = '/api/data';
+        var defaultData = [];
         var labels = [];
 
         $.ajax({
             method: "GET",
             url: endpoint,
             success: function (data) {
-                labels = data.labels
-                defaultData = data.default
+                labels = data.labels;
+                defaultData = data.dataset;
 
-                
-                var ctx = document.getElementById("myChart").getContext('2d');
-                var myChart = new Chart(ctx, {
-                    type: 'scatter',
-                    data: {
-                        datasets: [{
-                            label: labels,
-                            data: defaultData,
-                            backgroundColor: ['red'],
-                            pointBorderWidth: 2, pointRadius: 2,
-                            pointHoverBorderWidth: 2, pointHoverRadius: 2,
-                        }]
-                    }
-                },
-                
-                options = {
-                        scales: {
-                            yAxes: [{
-                                scaleLabel: {
-                                    display: true,
-                                    labelString: 'OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO'
-                                }
-                            }]
-                        }
-                    })
+                for( i = 0 ; i!= defaultData.length ; i++){
+                    defaultData[i]['x'] = defaultData[i].AGE;
+                    defaultData[i]['y'] = defaultData[i].BMI;
+
+                }
+                plot()
             }
-        })
-        function test(){
-            window.defaultData = []
-            console.log(window.defaultData)
+        });
+
+        function plot() {        
+            var ctx = document.getElementById("graphId").getContext('2d');
+            window.myScatter = Chart.Scatter(ctx, 
+            {
+                type: 'scatter',
+                data: 
+                {
+                    datasets: 
+                    [{
+                        label: labels,
+                        data: defaultData,
+                        backgroundColor: ['red'],
+                        pointBorderWidth: 3, pointRadius: 3,
+                        pointHoverBorderWidth: 3, pointHoverRadius: 3,
+                    }]
+                },
+
+                options: 
+                {
+                    title: 
+                    {
+                        display: true,
+                        text: "35 Fastest times up Alpe d'Huez"
+                    },
+
+                    legend: 
+                    {
+                        display: true,
+                    },
+
+                    showLines: false,
+                    scales: 
+                    {
+                        yAxes: 
+                        [{
+                            display: true,
+                            scaleLabel: 
+                            {
+                                display: true,
+                                labelString: 'X_AXIS',
+                                fontSize: 16
+                            },
+                            ticks: 
+                            {
+                                beginAtZero:true,
+                                fontSize: 14
+                            }
+                        }],
+                        xAxes: 
+                        [{
+                            type: 'linear',
+                            position: 'bottom',
+                            display: true,
+                            scaleLabel: 
+                            {
+                                display: true,
+                                labelString: 'Y_AXIS',
+                                fontSize: 16
+                            },
+                            gridLines: 
+                            {
+                                display: true
+                            },
+                            ticks: 
+                            {
+                                beginAtZero:false,
+                                fontSize: 14,
+                            }
+                        }]
+                    },
+                    tooltips: {
+                        displayColors: false,
+                        callbacks: {
+                          title: function(tooltipItems, data) {
+                            var str_json = "";
+                            count = 0;
+                            for(var obj in defaultData[tooltipItems[0].index]){
+                                str_json += obj + ": "+ defaultData[tooltipItems[0].index][obj] + "\n";
+                                count  = count + 1
+                if(count >= 10){ //cut waste attribute
+                    break;
+                }
+            }
+            return  str_json;
+        },
+
+        label: function(tooltipItems, data) {
+            return "";
         }
+    }
+}
+
+}
+
+});
+        }
+
+        document.getElementById('bmi').addEventListener('click', function() {
+
+            for( i = 0 ; i!= defaultData.length ; i++){
+                defaultData[i]['x'] = defaultData[i].AGE;
+                defaultData[i]['y'] = defaultData[i].BMI;
+
+            }
+            plot()
+        });
+
+        document.getElementById('fat').addEventListener('click', function() {
+
+            for( i = 0 ; i!= defaultData.length ; i++){
+                defaultData[i]['x'] = defaultData[i].AGE;
+                defaultData[i]['y'] = defaultData[i].FATAMT / defaultData[i].FFMAMT;
+
+            }
+            plot()
+        });
+        
+
+        
     </script>
 
 </body>
