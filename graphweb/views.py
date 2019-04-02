@@ -120,13 +120,14 @@ def setgraph(request):
         pass
     return render(request , "setgraph.html")
 
-@api_view(['GET', 'POST', ])
-def graphtest(request,format=None):
+# @api_view(['GET', 'POST', ])
+def graphtest(request):
     data = {
     "labels": "xczxczxc",
     "default": "asdasdasd",
     }
-    return(Response(data ,  template_name='graphtest.html'))
+    return render(request, "graphtest.html")
+    #return(Response(data ,  template_name='graphtest.html'))
 
 
 def querygoogleform():

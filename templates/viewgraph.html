@@ -61,7 +61,7 @@
                     googlequery[i]['y'] = googlequery[i].movementspeed;
                 }
 
-                plot()
+                plot(defaultData)
             }
         });
 
@@ -69,16 +69,16 @@
             var ctx = document.getElementById("graphId").getContext('2d');
             window.myScatter = Chart.Scatter(ctx,
                 {
-                    type: 'scatter',
+                    type: 'bloxplot',
                     data:
                     {
                         datasets:
                             [{
                                 label: labels,
                                 data: datalist,
-                                backgroundColor: ['red'],
-                                pointBorderWidth: 3, pointRadius: 3,
-                                pointHoverBorderWidth: 3, pointHoverRadius: 3,
+                                backgroundColor: ['blue'],
+                                // pointBorderWidth: 3, pointRadius: 3,
+                                // pointHoverBorderWidth: 3, pointHoverRadius: 3,
                             }]
                     },
 
