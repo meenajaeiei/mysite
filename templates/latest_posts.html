@@ -1,0 +1,7 @@
+          {% for history in history_list %}
+            <tr>
+              <td><a href="">{{history.filename}}</a></td>
+              <td>{{history.author}}</td>
+              <td>{{history.datetime_trans}}</td>
+            </tr>
+          {% endfor %}

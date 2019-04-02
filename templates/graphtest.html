@@ -1,0 +1,132 @@
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.bundle.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+
+
+
+
+ <canvas id="outputCanvas" width="500" height="300">
+
+ 
+<script>
+var ctx = document.getElementById("outputCanvas").getContext('2d');
+
+axios.get('https://raw.githubusercontent.com/FreeCodeCamp/ProjectReferenceData/master/cyclist-data.json')
+  .then(function (response) {
+  console.log(response);
+  var colouring = [];
+  var data = [];
+  var dopingData = [];
+  var notDopingData = [];
+  
+  /*var description = document.getElementById("description");
+  description.innerText = response.data.description;*/
+  
+  for (var i = 0; i < response.data.length; i++) {
+    if (response.data[i]["Doping"] === "") {
+      notDopingData.push({x: parseFloat(response.data[i]['Time'].replace(':','.')), y: response.data[i]['Place'], id: i});
+    } else {
+      dopingData.push({x: parseFloat(response.data[i]['Time'].replace(':','.')), y: response.data[i]['Place'], id: i});
+    }
+  }
+  var myChart = new Chart(ctx, {
+    type: 'scatter',
+    data: {
+      label: 'Scatter Dataset',
+      datasets: [{
+          data: notDopingData,
+          label: 'No Doping',
+          backgroundColor: 'rgba(255, 0, 0, 1)',
+        },
+        {
+          data: dopingData,
+          label: 'Doping',
+          backgroundColor: 'rgba(0, 0, 255, 1)'
+        }]
+    },pointBackgroundColor: 'rgb(255,10,132)' , pointBorderColor : 'rgb(255,10,132)', pointBorderWidth: 10 , pointRadius: 10, pointStyle: 'circle' , 
+    options: {
+      title: {
+        display: true,
+        text: "35 Fastest times up Alpe d'Huez"
+      },
+      legend: {
+        display: true,
+      },
+      
+      showLines: false,
+      scales: {
+        yAxes: [{
+          display: true,
+          scaleLabel: {
+            display: true,
+            labelString: 'Rank',
+            fontSize: 16
+          },
+          ticks: {
+            beginAtZero:true,
+            fontSize: 14
+          }
+        }],
+        xAxes: [{
+          type: 'linear',
+          position: 'bottom',
+          display: true,
+          scaleLabel: {
+            display: true,
+            labelString: 'Time (Minutes)',
+            fontSize: 16
+          },
+          gridLines: {
+            display: true
+          },
+          ticks: {
+            beginAtZero:false,
+            fontSize: 14,
+          }
+        }]
+      },
+      tooltips: {
+        displayColors: false,
+        callbacks: {
+          title: function(tooltipItems, data) {
+            var index = tooltipItems[0].index;
+            var datasetIndex = tooltipItems[0].datasetIndex;
+            var dataset = data.datasets[datasetIndex];
+            var datasetItem = dataset.data[index];
+            
+            var person = response.data[datasetItem.id];
+            return person.Name + " - " + person.Nationality;
+          },
+          label: function(tooltipItems, data) {
+            var output = "";
+            
+            var index = tooltipItems.index;
+            var datasetIndex = tooltipItems.datasetIndex;
+            var dataset = data.datasets[datasetIndex];
+            var datasetItem = dataset.data[index];
+            
+            var person = response.data[datasetItem.id];
+            
+            output += "TIme: " + person.Time + "\n | \n";
+            output += "Place: " + person.Place + "\n | \n";
+            output += "Year: " + person.Year + "\n | \n";
+            if (person.Doping === "") {
+              output += "Doping: None";
+            } else {
+              output += "Doping: " + person.Doping;
+            }
+            return output;
+          }
+        }
+      }
+    }
+  });
+
+})
+  .catch(function (error) {
+  console.log(error);
+});
+
+</script>
