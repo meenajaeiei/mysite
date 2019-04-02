@@ -24,7 +24,7 @@ urlpatterns = [
     path('contact_upload/' , contact_upload , name = 'contact_upload'),
     path('viewgraph/' , viewgraph , name = 'viewgraph'),
     path('setgraph/' , setgraph , name = 'setgraph'),
-    path('api/chart/data/' , ChartData.as_view() ,  name = 'chast'),
+    #path('api/chart/data/' , ChartData.as_view() ,  name = 'chast'),
     path('api/data/' , DataList.as_view()),
     path("graphtest/" , graphtest , name = 'graphtest'),
 

@@ -6,6 +6,9 @@ import pyrebase
 import pandas
 import json
 
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+
 from django import forms
 from django.shortcuts import render
 from django.http import JsonResponse
@@ -22,6 +25,8 @@ from .serializers import DataSerializer
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 timezone.activate(pytz.timezone("Asia/Bangkok"))
 TIME = timezone.get_current_timezone().normalize(timezone.now())
+scope = ['https://spreadsheets.google.com/feeds',
+         'https://www.googleapis.com/auth/drive']
 
 
 def contact_upload(request):
@@ -124,41 +129,63 @@ def graphtest(request,format=None):
     return(Response(data ,  template_name='graphtest.html'))
 
 
+def querygoogleform():
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(os.path.join(os.path.join(BASE_DIR, 'media_root') ,"My Project 83554-303b412de544.json") ,scope)
+    gc = gspread.authorize(credentials)
+    wks = gc.open("test").sheet1
+    list_of_lists = wks.get_all_values()
+    #print(list_of_lists) # list_of_lists[0] is data attribute
+    data_list = []
+    
+    for i in list_of_lists[1::]:
+        data_list.append({
+        "timestamp": i[0],
+        "gender": i[1],
+        "age": i[2],
+        "movementspeed":i[3],
+        "gripstr":i[4],
+        })
+    print(data_list)
+    return data_list
 
-class ChartData(APIView):
-    jsonfield = forms.CharField(max_length=1024)
 
-    def get(self , request , format=None):
-        print(request.session['startdate'])
+
+
+# class ChartData(APIView):
+#     jsonfield = forms.CharField(max_length=1024)
+
+#     def get(self , request , format=None):
+#         print(request.session['startdate'])
         
-        default_items = []
-        filelist = os.listdir(os.path.join(BASE_DIR, 'media_root'))
+#         default_items = []
+#         filelist = os.listdir(os.path.join(BASE_DIR, 'media_root'))
 
-        for fil in filelist:
-            if( request.session['startdate'] <= fil[:10] and request.session['enddate'] >= fil[:10]):
+#         for fil in filelist:
+#             if( request.session['startdate'] <= fil[:10] and request.session['enddate'] >= fil[:10]):
 
-                dfy = pandas.read_csv(os.path.join(os.path.join(BASE_DIR, 'media_root'), fil))
+#                 dfy = pandas.read_csv(os.path.join(os.path.join(BASE_DIR, 'media_root'), fil))
 
-                for row in dfy.itertuples(index=True, name='Pandas'):
-                    tmp_dict = dict()
-                    tmp_dict['x'] = getattr(row, "AGE") 
-                    tmp_dict['y'] = getattr(row, "BMI")
-                    default_items.append(tmp_dict)
-        labels = [str(len(default_items)) +" subjects from "+ request.session['startdate']+" to "+request.session['enddate'] ]
+#                 for row in dfy.itertuples(index=True, name='Pandas'):
+#                     tmp_dict = dict()
+#                     tmp_dict['x'] = getattr(row, "AGE") 
+#                     tmp_dict['y'] = getattr(row, "BMI")
+#                     default_items.append(tmp_dict)
+#         labels = [str(len(default_items)) +" subjects from "+ request.session['startdate']+" to "+request.session['enddate'] ]
         
-        #DS = Data.objects.filter(datetime__range=(request.session['startdate'], request.session['enddate']))
+#         #DS = Data.objects.filter(datetime__range=(request.session['startdate'], request.session['enddate']))
 
-        data = {
-            "labels": labels,
-            "default": default_items,
-            "datas" : serializers.serialize("json", History.published.all())
-        }
+#         data = {
+#             "labels": labels,
+#             "default": default_items,
+#             "datas" : serializers.serialize("json", History.published.all())
+#         }
 
 
-        return(Response(data))
+#         return(Response(data))
 
 class DataList(APIView):
     def get(self , request):
+        googledata = querygoogleform()
         startdate = "1111-01-01"
         enddate = "1111-01-01"
         try:
@@ -175,6 +202,8 @@ class DataList(APIView):
         data = {
             "labels": "DATA AMOUNTS "+ str(dataall.count()),
             "dataset":serializer.data,
+            "googledata": googledata,
+
         }
         return Response(data)
 
